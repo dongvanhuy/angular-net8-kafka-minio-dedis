@@ -1,25 +1,30 @@
-# frontend/Dockerfile
+# video-processing-api/Dockerfile
 
-# Bước 1: Sử dụng Node.js để xây dựng ứng dụng
+# Sử dụng Node.js làm hình ảnh cơ sở
 FROM node:18 AS build
+
+# Thiết lập thư mục làm việc
 WORKDIR /app
 
-# Sao chép các tệp cấu hình và cài đặt các phụ thuộc
+# Sao chép tệp package.json và package-lock.json (nếu có) từ thư mục hiện tại
 COPY package*.json ./
+
+# Cài đặt các phụ thuộc
 RUN npm install
 
-# Sao chép toàn bộ mã nguồn vào container
+# Sao chép toàn bộ mã nguồn vào thư mục làm việc
 COPY . .
 
-# Xây dựng ứng dụng Angular
+# Xây dựng ứng dụng
 RUN npm run build --prod
 
-# Bước 2: Sử dụng Nginx để phục vụ ứng dụng
+# Chuyển sang hình ảnh Nginx để phục vụ ứng dụng
 FROM nginx:alpine
-# Sao chép các tệp đã xây dựng vào thư mục phục vụ của Nginx
+
+# Sao chép tệp đã xây dựng vào Nginx
 COPY --from=build /app/dist/video-processing-app /usr/share/nginx/html
 
-# Mở cổng 80
+# Expose cổng 80
 EXPOSE 80
 
 # Chạy Nginx
